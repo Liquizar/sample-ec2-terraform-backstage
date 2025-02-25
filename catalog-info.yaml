@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sample-ec2-terraform-backstage
+  description: A simple Terraform repository to test the Software Templates
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: Liquizar/sample-ec2-terraform-backstage
+    backstage.io/linguist: https://github.com/Liquizar/sample-ec2-terraform-backstage.git
+spec:
+  type: service
+  lifecycle: experimental
+  owner: devops-team
