@@ -3,6 +3,11 @@ kind: Component
 metadata:
   name: sample-ec2-terraform-backstage
   description: A simple Terraform repository to test the Software Templates
+  links:
+    - url: https://developer.hashicorp.com/terraform?product_intent=terraform
+      title: Terraform Docs
+    - url: https://docs.aws.amazon.com/
+      title: AWS Docs
   annotations:
     backstage.io/techdocs-ref: dir:.
     github.com/project-slug: Liquizar/sample-ec2-terraform-backstage
