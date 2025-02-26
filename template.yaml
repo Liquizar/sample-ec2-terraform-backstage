@@ -71,9 +71,9 @@ spec:
           intervalMs: 15000  # Wait 15 seconds between checks
           maxAttempts: 30    # Retry up to 30 times (7.5 min max)
           condition: |
-            response.workflow_runs[0].name === 'Manage EC2 Instance' &&
-            response.workflow_runs[0].status === 'completed' &&
-            response.workflow_runs[0].conclusion === 'success'
+            response?.workflow_runs?.some(
+              r => r.name === 'Manage EC2 Instance' && r.status === 'completed' && r.conclusion === 'success'
+            )
 
     - id: debug-workflow-response  # Debugging step (optional)
       name: Debug Workflow API Response
@@ -93,10 +93,10 @@ spec:
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
       output:
         artifact_url: |
-          response.artifacts[0].name === 'terraform-outputs' 
-          ? 'https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts/' 
-            + response.artifacts[0].id 
-            + '/zip'
+          response?.artifacts?.find(a => a.name === 'terraform-outputs') 
+          ? `https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts/${
+              response.artifacts.find(a => a.name === 'terraform-outputs').id
+            }/zip`
           : ''
 
 
