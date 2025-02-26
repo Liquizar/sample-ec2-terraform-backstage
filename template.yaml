@@ -1,0 +1,70 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ec2-instance
+  title: Deploy EC2 Instance with Terraform
+  description: Provision an AWS EC2 instance using Terraform and GitHub Actions
+spec:
+  owner: user:liquizar
+  type: service
+  parameters:
+    - title: Fill in EC2 details
+      required:
+        - instanceName
+        - region
+        - osChoice
+        - action
+      properties:
+        instanceName:
+          title: EC2 Instance Name
+          type: string
+          description: The name for the EC2 instance
+        instanceType:
+          title: EC2 instance type (e.g., t2.micro)
+          type: string
+          description: The Type of the EC2 instance
+        region:
+          title: AWS Region
+          type: string
+          description: The AWS region where the instance will be deployed
+        osChoice:
+          title: OS Selection
+          type: string
+          description: OS selection (amazon_linux, ubuntu, windows, redhat)
+          enum:
+            - amazon_linux
+            - ubuntu
+            - windows
+            - redhat
+        action:
+          title: Action
+          type: string
+          description: Apply or destroy the EC2 instance
+          enum:
+            - apply
+            - destroy
+  steps:
+    - id: github-action
+      name: Trigger GitHub Action
+      action: github:actions:dispatch
+      input:
+        workflowId: manage-ec2.yaml
+        repoUrl: github.com/Liquizar/sample-ec2-terraform-backstage
+        branchOrTagName: 'main'
+        workflowInputs:
+          instanceName: ${{ parameters.instanceName }}
+          awsRegion: ${{ parameters.region }}
+          instanceType: ${{ parameters.instanceType }}
+          osChoice: ${{ parameters.osChoice }}
+          action: ${{ parameters.action }}
+  output:
+    text:
+      - title: EC2 Instance Details
+        content: |
+          - **AMI ID**: ${{ steps['get-terraform-outputs'].output.ami_id }}
+          - **Instance ID**: ${{ steps['get-terraform-outputs'].output.instance_id }}
+          - **Instance Type**: ${{ steps['get-terraform-outputs'].output.instance_type }}
+          - **OS Selected**: ${{ steps['get-terraform-outputs'].output.os_selected }}
+          - **Private IP**: ${{ steps['get-terraform-outputs'].output.private_ip }}
+          - **Public IP**: ${{ steps['get-terraform-outputs'].output.public_ip }}
+          - **Security Group ID**: ${{ steps['get-terraform-outputs'].output.security_group_id }}
