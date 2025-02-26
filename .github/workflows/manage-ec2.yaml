@@ -35,6 +35,17 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    
+    - name: Restore Terraform State
+      uses: actions/cache@v3
+      with:
+        path: Terraform/terraform.tfstate
+        key: terraform-state-${{ github.run_id }}
+        restore-keys: |
+          terraform-state-
+
+    - name: Debug Current Directory
+      run: pwd && ls -lah
       
     - name: Terraform Init
       run: terraform init
@@ -67,7 +78,18 @@ jobs:
     - name: Terraform Init
       run: terraform init
       working-directory: Terraform
-      
+
+    - name: Restore Terraform State
+      uses: actions/cache@v3
+      with:
+        path: Terraform/terraform.tfstate
+        key: terraform-state-${{ github.run_id }}
+        restore-keys: |
+          terraform-state-
+
+    - name: Debug Current Directory
+      run: pwd && ls -lah
+
     - name: Terraform Format
       run: terraform fmt
       working-directory: Terraform
