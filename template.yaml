@@ -58,29 +58,11 @@ spec:
           osChoice: ${{ parameters.osChoice }}
           action: ${{ parameters.action }}
     
-    - id: wait-for-workflow
-      name: Wait for Workflow Completion
-      action: http:fetch
+    - action: debug:wait
+      id: wait-2min
+      name: Waiting for 2 minutes
       input:
-        url: "https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/runs?per_page=1"
-        method: GET
-        headers:
-          Accept: application/vnd.github.v3+json
-          Authorization: "Bearer ${{ secrets.GH_PAT }}"
-        waitFor:
-          intervalMs: 15000
-          maxAttempts: 30
-          condition: |
-            response?.workflow_runs?.length > 0 &&
-            response.workflow_runs[0].status === 'completed' &&
-            response.workflow_runs[0].conclusion === 'success'
-
-    - id: debug-workflow-response  # Debugging step (optional)
-      name: Debug Workflow API Response
-      action: debug:log
-      input:
-        message: |
-          Workflow Runs Response: ${{ response }}
+        minutes: 2
 
     - id: fetch-terraform-outputs
       name: Fetch Terraform Outputs Artifact
@@ -98,9 +80,6 @@ spec:
               response.artifacts.find(a => a.name === 'terraform-outputs').id
             }/zip`
           : ''
-
-
-
 
   output:
     text:
