@@ -57,6 +57,24 @@ spec:
           instanceType: ${{ parameters.instanceType }}
           osChoice: ${{ parameters.osChoice }}
           action: ${{ parameters.action }}
+    
+    - id: wait-for-completion
+      name: Wait for Workflow Completion
+      action: github:actions:wait-for-jobs
+      input:
+        repoUrl: github.com?owner=Liquizar&repo=sample-ec2-terraform-backstage
+        workflowId: ${{ steps['trigger-workflow'].output.workflowId }}
+        timeoutSeconds: 600
+
+    - id: fetch-terraform-outputs
+      name: Fetch Terraform Outputs
+      action: fetch:plain
+      input:
+        url: "https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/runs/${{ steps['trigger-workflow'].output.runId }}/logs"
+        headers:
+          Authorization: "Bearer ${{ secrets.GH_PAT }}"
+        method: GET
+
   output:
     text:
       - title: EC2 Instance Details
