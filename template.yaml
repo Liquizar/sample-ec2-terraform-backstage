@@ -60,11 +60,12 @@ spec:
     
     - id: wait-for-workflow
       name: Wait for Workflow Completion
-      action: fetch:plain
+      action: http:fetch
       input:
         url: "https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/runs"
         method: GET
         headers:
+          Accept: application/vnd.github.v3+json
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
         waitFor:
           intervalMs: 10000
@@ -75,11 +76,12 @@ spec:
 
     - id: fetch-terraform-outputs
       name: Fetch Terraform Outputs Artifact
-      action: fetch:plain
+      action: http:fetch
       input:
         url: "https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts"
         method: GET
         headers:
+          Accept: application/vnd.github.v3+json
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
       output:
         artifact_url: |
