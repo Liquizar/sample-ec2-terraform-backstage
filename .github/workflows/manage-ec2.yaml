@@ -1,0 +1,81 @@
+# Define the name of the GitHub Action workflow
+name: Manage EC2 Instance
+
+# This workflow is manually triggered using the GitHub Actions UI
+on:
+  workflow_dispatch:
+    # Define inputs required for the manual trigger
+    inputs:
+      instanceName:
+        description: 'Name of the EC2 instance'
+        required: true
+      awsRegion:
+        description: 'AWS Region where the instance will be deployed'
+        required: true
+      instanceType:
+        description: 'EC2 instance type (e.g., t2.micro)'
+        required: true
+      osChoice:
+        description: 'OS selection (amazon_linux, ubuntu, windows, redhat)'
+        required: true
+      action:
+        description: 'Action to perform (apply/destroy)'
+        required: true
+
+# Define jobs to be executed in this workflow
+jobs:
+  # Job for creating or updating the EC2 instance
+  apply_instance:
+    name: Deploy EC2 instance via Terraform
+    runs-on: self-hosted
+
+    # Only run this job if the action input is "apply"
+    if: ${{ github.event.inputs.action == 'apply' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Terraform Init
+      run: terraform init
+      working-directory: Terraform
+      
+    - name: Terraform Format
+      run: terraform fmt
+      working-directory: Terraform
+      
+    - name: Terraform Validate
+      run: terraform validate
+      working-directory: Terraform
+      
+    - name: Terraform Apply
+      run: terraform apply -var instance_name=${{ github.event.inputs.instanceName }} -var aws_region=${{ github.event.inputs.awsRegion }} -var instance_type=${{ github.event.inputs.instanceType }} -var os_choice=${{ github.event.inputs.osChoice }} -auto-approve
+      working-directory: Terraform
+
+  # Job for destroying the EC2 instance
+  destroy_instance:
+    name: Destroy EC2 instance via Terraform
+    runs-on: self-hosted
+
+    # Only run this job if the action input is "destroy"
+    if: ${{ github.event.inputs.action == 'destroy' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+        
+    - name: Terraform Init
+      run: terraform init
+      working-directory: Terraform
+      
+    - name: Terraform Format
+      run: terraform fmt
+      working-directory: Terraform
+      
+    - name: Terraform Validate
+      run: terraform validate
+      working-directory: Terraform
+      
+    - name: Terraform Destroy
+      run: terraform destroy -var instance_name=${{ github.event.inputs.instanceName }} -var aws_region=${{ github.event.inputs.awsRegion }} -var instance_type=${{ github.event.inputs.instanceType }} -var os_choice=${{ github.event.inputs.osChoice }} -auto-approve
+      working-directory: Terraform
