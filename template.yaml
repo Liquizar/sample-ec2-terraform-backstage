@@ -71,8 +71,7 @@ spec:
           intervalMs: 10000
           maxAttempts: 20
           condition: |
-            const run = response?.workflow_runs?.find(r => r.name === 'Manage EC2 Instance' && r.status === 'completed');
-            Boolean(run) # Ensure it returns true/false
+            response?.workflow_runs?.some(r => r.name === 'Manage EC2 Instance' && r.status === 'completed')
 
     - id: fetch-terraform-outputs
       name: Fetch Terraform Outputs Artifact
@@ -85,8 +84,10 @@ spec:
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
       output:
         artifact_url: |
-          const artifact = response?.artifacts?.find(a => a.name === 'terraform-outputs');
-          artifact ? `https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts/${artifact.id}/zip` : ''
+          (response?.artifacts?.find(a => a.name === 'terraform-outputs') || {}).id 
+            ? `https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts/${response.artifacts.find(a => a.name === 'terraform-outputs').id}/zip` 
+            : ''
+
 
 
   output:
