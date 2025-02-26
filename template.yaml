@@ -62,16 +62,25 @@ spec:
       name: Wait for Workflow Completion
       action: http:fetch
       input:
-        url: "https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/runs"
+        url: "https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/runs?per_page=1"
         method: GET
         headers:
           Accept: application/vnd.github.v3+json
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
         waitFor:
-          intervalMs: 10000
-          maxAttempts: 20
+          intervalMs: 15000  # Wait 15 seconds between checks
+          maxAttempts: 30    # Retry up to 30 times (7.5 min max)
           condition: |
-            response?.workflow_runs?.some(r => r.name === 'Manage EC2 Instance' && r.status === 'completed')
+            response.workflow_runs[0].name === 'Manage EC2 Instance' &&
+            response.workflow_runs[0].status === 'completed' &&
+            response.workflow_runs[0].conclusion === 'success'
+
+    - id: debug-workflow-response  # Debugging step (optional)
+      name: Debug Workflow API Response
+      action: debug:log
+      input:
+        message: |
+          Workflow Runs Response: ${{ response }}
 
     - id: fetch-terraform-outputs
       name: Fetch Terraform Outputs Artifact
@@ -84,9 +93,12 @@ spec:
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
       output:
         artifact_url: |
-          (response?.artifacts?.find(a => a.name === 'terraform-outputs') || {}).id 
-            ? `https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts/${response.artifacts.find(a => a.name === 'terraform-outputs').id}/zip` 
-            : ''
+          response.artifacts[0].name === 'terraform-outputs' 
+          ? 'https://api.github.com/repos/Liquizar/sample-ec2-terraform-backstage/actions/artifacts/' 
+            + response.artifacts[0].id 
+            + '/zip'
+          : ''
+
 
 
 
