@@ -68,12 +68,12 @@ spec:
           Accept: application/vnd.github.v3+json
           Authorization: "Bearer ${{ secrets.GH_PAT }}"
         waitFor:
-          intervalMs: 15000  # Wait 15 seconds between checks
-          maxAttempts: 30    # Retry up to 30 times (7.5 min max)
+          intervalMs: 15000
+          maxAttempts: 30
           condition: |
-            response?.workflow_runs?.some(
-              r => r.name === 'Manage EC2 Instance' && r.status === 'completed' && r.conclusion === 'success'
-            )
+            response?.workflow_runs?.length > 0 &&
+            response.workflow_runs[0].status === 'completed' &&
+            response.workflow_runs[0].conclusion === 'success'
 
     - id: debug-workflow-response  # Debugging step (optional)
       name: Debug Workflow API Response
