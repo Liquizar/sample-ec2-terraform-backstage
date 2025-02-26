@@ -61,10 +61,11 @@ spec:
     text:
       - title: EC2 Instance Details
         content: |
-          - **AMI ID**: ${{ steps['get-terraform-outputs'].output.ami_id }}
-          - **Instance ID**: ${{ steps['get-terraform-outputs'].output.instance_id }}
-          - **Instance Type**: ${{ steps['get-terraform-outputs'].output.instance_type }}
-          - **OS Selected**: ${{ steps['get-terraform-outputs'].output.os_selected }}
-          - **Private IP**: ${{ steps['get-terraform-outputs'].output.private_ip }}
-          - **Public IP**: ${{ steps['get-terraform-outputs'].output.public_ip }}
-          - **Security Group ID**: ${{ steps['get-terraform-outputs'].output.security_group_id }}
+          - **AMI ID**: ${{ steps['export-terraform-outputs'].output.ami_id }}
+          - **Instance ID**: ${{ steps['export-terraform-outputs'].output.instance_id }}
+          - **Instance Type**: ${{ steps['export-terraform-outputs'].output.instance_type }}
+          - **OS Selected**: ${{ steps['export-terraform-outputs'].output.os_selected }}
+          - **Private IP**: ${{ steps['export-terraform-outputs'].output.private_ip }}
+          - **Public IP**: ${{ steps['export-terraform-outputs'].output.public_ip }}
+          - **Security Group ID**: ${{ steps['export-terraform-outputs'].output.security_group_id }}
+
