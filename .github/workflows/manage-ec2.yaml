@@ -63,28 +63,38 @@ jobs:
       run: terraform apply -var instance_name=${{ github.event.inputs.instanceName }} -var aws_region=${{ github.event.inputs.awsRegion }} -var instance_type=${{ github.event.inputs.instanceType }} -var os_choice=${{ github.event.inputs.osChoice }} -auto-approve
       working-directory: Terraform
 
-    - name: Get Terraform Outputs
-      id: get-terraform-outputs
+    - name: Save Terraform Outputs
       run: |
-        echo "ami_id=$(terraform output -raw ami_id)" >> $GITHUB_ENV
-        echo "instance_id=$(terraform output -raw instance_id)" >> $GITHUB_ENV
-        echo "instance_type=$(terraform output -raw instance_type)" >> $GITHUB_ENV
-        echo "os_selected=$(terraform output -raw os_selected)" >> $GITHUB_ENV
-        echo "private_ip=$(terraform output -raw private_ip)" >> $GITHUB_ENV
-        echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_ENV
-        echo "security_group_id=$(terraform output -raw security_group_id)" >> $GITHUB_ENV
-      working-directory: Terraform
+        terraform output -json > terraform-outputs.json
 
-    - name: Export Terraform Outputs
-      id: export-terraform-outputs
-      run: |
-        echo "ami_id=${{ env.ami_id }}" >> $GITHUB_OUTPUT
-        echo "instance_id=${{ env.instance_id }}" >> $GITHUB_OUTPUT
-        echo "instance_type=${{ env.instance_type }}" >> $GITHUB_OUTPUT
-        echo "os_selected=${{ env.os_selected }}" >> $GITHUB_OUTPUT
-        echo "private_ip=${{ env.private_ip }}" >> $GITHUB_OUTPUT
-        echo "public_ip=${{ env.public_ip }}" >> $GITHUB_OUTPUT
-        echo "security_group_id=${{ env.security_group_id }}" >> $GITHUB_OUTPUT
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-outputs
+        path: terraform-outputs.json
+
+    # - name: Get Terraform Outputs
+    #   id: get-terraform-outputs
+    #   run: |
+    #     echo "ami_id=$(terraform output -raw ami_id)" >> $GITHUB_ENV
+    #     echo "instance_id=$(terraform output -raw instance_id)" >> $GITHUB_ENV
+    #     echo "instance_type=$(terraform output -raw instance_type)" >> $GITHUB_ENV
+    #     echo "os_selected=$(terraform output -raw os_selected)" >> $GITHUB_ENV
+    #     echo "private_ip=$(terraform output -raw private_ip)" >> $GITHUB_ENV
+    #     echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_ENV
+    #     echo "security_group_id=$(terraform output -raw security_group_id)" >> $GITHUB_ENV
+    #   working-directory: Terraform
+
+    # - name: Export Terraform Outputs
+    #   id: export-terraform-outputs
+    #   run: |
+    #     echo "ami_id=${{ env.ami_id }}" >> $GITHUB_OUTPUT
+    #     echo "instance_id=${{ env.instance_id }}" >> $GITHUB_OUTPUT
+    #     echo "instance_type=${{ env.instance_type }}" >> $GITHUB_OUTPUT
+    #     echo "os_selected=${{ env.os_selected }}" >> $GITHUB_OUTPUT
+    #     echo "private_ip=${{ env.private_ip }}" >> $GITHUB_OUTPUT
+    #     echo "public_ip=${{ env.public_ip }}" >> $GITHUB_OUTPUT
+    #     echo "security_group_id=${{ env.security_group_id }}" >> $GITHUB_OUTPUT
 
   # Job for destroying the EC2 instance
   destroy_instance:
